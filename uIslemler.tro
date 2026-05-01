@@ -1,0 +1,192 @@
+
+uses Main;
+var
+anaForm:TclStyleForm;
+uIslemler:TclUnit;
+Btn_KitapEkle,Btn_AddNote, Btn_KitapListe,Btn_Istatistikler,Btn_CikisYap: TclProButton;
+plusImg,kitapImg,ListeImg,IstatistikImg,NoteImg,CikisImg,logoImg: TclProImage;
+baslikLabel,label1:TClProLabel;
+kullaniciAdi:String;
+
+ void KitapEkleyineTiklandiginda;
+ {
+ Clomosy.RunUnit('uKitapEkle');
+   }
+ 
+void KitapListesineTiklandiginda;
+ {
+ Clomosy.RunUnit('uKitapListesi');
+   }
+ 
+
+ void IstatiklereTiklandiginda;
+ {
+ Clomosy.RunUnit('uIstatistikler');
+  }
+  
+  void NotEkleyeTiklandiginda;
+ {
+ Clomosy.RunUnit('uNotEkle');
+  }
+
+void CikisYapTiklandiginda;
+{
+  Application.Terminate();  
+}
+
+void uIslemler_OnShow;
+{
+   baslikLabel.Text = 'Welcome, ' + Main.G_kullaniciAdi;
+}
+{
+anaForm=TclStyleForm.Create(Self);
+anaForm.SetFormColor('f0f9ff','', clGNone);
+
+
+
+baslikLabel = anaForm.AddNewProLabel(anaForm, 'baslikLabel', 'Welcome, '+Main.G_kullaniciAdi + ' :)');
+  clComponent.SetupComponent(baslikLabel, '{"Align": "Center",
+  "MarginBottom": 590,
+  "Width":300,
+  "Height": 60,
+  "TextColor": "#000000",
+  "TextSize": 30,
+  "TextVerticalAlign": "center",
+  "TextHorizontalAlign": "left", 
+  "TextItalic": "yes"}');
+
+
+  Btn_KitapEkle=anaForm.AddNewProButton(anaForm, 'Btn_KitapEkle', '  Add A Book');
+  Btn_KitapEkle.Align=alCenter;
+  Btn_KitapEkle.Height=120;
+  Btn_KitapEkle.Width=300;
+  Btn_KitapEkle.Margins.bottom=350;
+  Btn_KitapEkle.clProSettings.FontColor=clAlphaColor.clHexToColor('#000000');
+  Btn_KitapEkle.clProSettings.BorderColor=clAlphaColor.clHexToColor('#3A86FF');
+  Btn_KitapEkle.clProSettings.BackGroundColor=clAlphaColor.clHexToColor('#ffffff');
+  Btn_KitapEkle.clProSettings.TextSettings.Font.Style = [fsBold];
+  Btn_KitapEkle.clProSettings.BorderWidth = 2;
+  Btn_KitapEkle.clProSettings.FontSize=20;
+  Btn_KitapEkle.clProSettings.Roundheight=10;
+  Btn_KitapEkle.clProSettings.RoundWidth=10;
+  Btn_KitapEkle.SetclProSettings(Btn_KitapEkle.clProSettings);
+   
+   
+  kitapImg= anaForm.AddNewProImage(anaForm,'kitapImg');
+  kitapImg.Height =60;
+  kitapImg.Width = 60;
+  kitapImg.Margins.Right=190;
+  kitapImg.Margins.bottom=350;
+  anaForm.setImage(kitapImg,'https://d1nhio0ox7pgb.cloudfront.net/_img/v_collection_png/512x512/shadow/books_blue_add.png');
+   
+   
+  Btn_KitapListe=anaForm.AddNewProButton(anaForm, 'Btn_KitapListe', 'Book List');
+  Btn_KitapListe.Align=alCenter;
+  Btn_KitapListe.Height=80;
+  Btn_KitapListe.Width=300;
+  Btn_KitapListe.Margins.bottom=90;
+  Btn_KitapListe.clProSettings.FontColor=clAlphaColor.clHexToColor('#000000');
+  Btn_KitapListe.clProSettings.BorderColor=clAlphaColor.clHexToColor('#4d996a');
+  Btn_KitapListe.clProSettings.BackGroundColor=clAlphaColor.clHexToColor('#ffffff');
+  Btn_KitapListe.clProSettings.TextSettings.Font.Style = [fsBold];
+  Btn_KitapListe.clProSettings.BorderWidth = 2;
+  Btn_KitapListe.clProSettings.FontSize=20;
+  Btn_KitapListe.clProSettings.Roundheight=10;
+  Btn_KitapListe.clProSettings.RoundWidth=10;
+  Btn_KitapListe.SetclProSettings(Btn_KitapListe.clProSettings);
+   
+   
+  ListeImg= anaForm.AddNewProImage(anaForm,'ListeImg');
+  ListeImg.Height =60;
+  ListeImg.Width = 60;
+  ListeImg.Margins.Right=200;
+  ListeImg.Margins.bottom=90;
+  anaForm.setImage(ListeImg,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSwX9wzhcgmYKrIIvY51QkJLHIS28Ntj1NE9g&s');
+  
+   
+  Btn_Istatistikler=anaForm.AddNewProButton(anaForm, 'Btn_Istatistikler', '    Genre Statistics');
+  Btn_Istatistikler.Align=alCenter;
+  Btn_Istatistikler.Height=80;
+  Btn_Istatistikler.Width=300;
+  Btn_Istatistikler.Margins.top=130;
+  Btn_Istatistikler.clProSettings.FontColor=clAlphaColor.clHexToColor('#000000');
+  Btn_Istatistikler.clProSettings.BorderColor=clAlphaColor.clHexToColor('#8338EC');
+  Btn_Istatistikler.clProSettings.BackGroundColor=clAlphaColor.clHexToColor('#ffffff');
+  Btn_Istatistikler.clProSettings.TextSettings.Font.Style = [fsBold];
+  Btn_Istatistikler.clProSettings.FontSize=20;
+  Btn_Istatistikler.clProSettings.BorderWidth = 2;
+  Btn_Istatistikler.clProSettings.Roundheight=10;
+  Btn_Istatistikler.clProSettings.RoundWidth=10;
+  Btn_Istatistikler.SetclProSettings(Btn_Istatistikler.clProSettings);
+  Btn_Istatistikler.clProSettings.TextSettings.Font.Style = [fsBold];
+  
+  IstatistikImg= anaForm.AddNewProImage(anaForm,'IstatistikImg');
+  IstatistikImg.Height =60;
+  IstatistikImg.Width = 60;
+  IstatistikImg.Margins.Right=200;
+  IstatistikImg.Margins.top=130;
+  anaForm.setImage(IstatistikImg,'https://cdn-icons-png.freepik.com/512/17223/17223335.png');
+
+   
+  
+  Btn_AddNote=anaForm.AddNewProButton(anaForm, 'Btn_AddNote', 'Add Note');
+  Btn_AddNote.Align=alCenter;
+  Btn_AddNote.Height=80;
+  Btn_AddNote.Width=300;
+  Btn_AddNote.Margins.top=350;
+  Btn_AddNote.clProSettings.FontColor=clAlphaColor.clHexToColor('#000000');
+  Btn_AddNote.clProSettings.BorderColor=clAlphaColor.clHexToColor('#FF9F1C');
+  Btn_AddNote.clProSettings.BackGroundColor=clAlphaColor.clHexToColor('#ffffff');
+  Btn_AddNote.clProSettings.TextSettings.Font.Style = [fsBold];
+  Btn_AddNote.clProSettings.BorderWidth = 2;
+  Btn_AddNote.clProSettings.FontSize=20;
+  Btn_AddNote.clProSettings.Roundheight=10;
+  Btn_AddNote.clProSettings.RoundWidth=10;
+  Btn_AddNote.SetclProSettings(Btn_AddNote.clProSettings);
+  
+  
+  
+
+  NoteImg= anaForm.AddNewProImage(anaForm,'NoteImg');
+  NoteImg.Height =60;
+  NoteImg.Width = 60;
+  NoteImg.Margins.Right=190;
+  NoteImg.Margins.top=350;
+  anaForm.setImage(NoteImg,'https://cdn-icons-png.freepik.com/512/4439/4439796.png');
+
+ 
+  Btn_CikisYap = anaForm.AddNewProButton(anaForm, 'Btn_CikisYap', '   Log Out');
+  Btn_CikisYap.Align = alCenter;
+  Btn_CikisYap.Height = 60;
+  Btn_CikisYap.Width = 200;
+  Btn_CikisYap.Margins.top = 520;
+  Btn_CikisYap.clProSettings.FontColor = clAlphaColor.clHexToColor('#000000');
+  Btn_CikisYap.clProSettings.BorderColor = clAlphaColor.clHexToColor('#EF476F');
+  Btn_CikisYap.clProSettings.BackGroundColor = clAlphaColor.clHexToColor('#ffffff');
+  Btn_CikisYap.clProSettings.TextSettings.Font.Style = [fsBold];
+  Btn_CikisYap.clProSettings.BorderWidth = 2;
+  Btn_CikisYap.clProSettings.FontSize = 20;
+  Btn_CikisYap.clProSettings.Roundheight = 15;
+  Btn_CikisYap.clProSettings.RoundWidth = 20;
+  Btn_CikisYap.SetclProSettings(Btn_CikisYap.clProSettings);
+  
+  
+  
+  CikisImg= anaForm.AddNewProImage(anaForm,'CikisImg');
+  CikisImg.Height =50;
+  CikisImg.Width =50;
+  CikisImg.Margins.left=50;
+  CikisImg.Margins.Right=180;
+  CikisImg.Margins.top=520;
+  anaForm.setImage( CikisImg,'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS5jNcc8xPT07yj_4DXRWk8r0IXrkqNdSwFow&s');
+  
+  
+ anaForm.AddNewEvent(Btn_CikisYap, tbeOnClick, 'CikisYapTiklandiginda'); 
+ anaForm.AddNewEvent(Btn_KitapEkle,tbeOnClick,'KitapEkleyineTiklandiginda');
+ anaForm.AddNewEvent( Btn_KitapListe,tbeOnClick,'KitapListesineTiklandiginda');
+ anaForm.AddNewEvent(Btn_Istatistikler,tbeOnClick,'IstatiklereTiklandiginda');  
+ anaForm.AddNewEvent(Btn_AddNote,tbeOnClick,'NotEkleyeTiklandiginda'); 
+  
+  anaForm.Run;
+  }
+

@@ -1,0 +1,215 @@
+
+var
+  Form1:TCLForm;
+  clPageControl:TCLPageControl;
+  arrPageName : TclArrayString;
+  BookIDEdt,BookTitleEdt,AuthorEdt,CategoryEdt,StatusEdt,PageCountEdt : TclProEdit;
+  Chart1: TClChart;
+  PListView: TClProListView;
+  I : Integer;
+  chartPanel: TClContainer;
+  chartTitleLbl: TclProLabel;
+void GetData;
+ var
+  Qry : TClSQLiteQuery;
+ {
+  
+  try
+    Qry = Clomosy.DBSQLiteQueryWith('Select ''BookID: ''||BookID as BookID,''Book Name: ''||BookName as BookName,''Author: ''||Author as Author, ''Category: ''||Category as Category,''Read Page ''||ReadPage as ReadPage,''Page Count: ''||PageCount as PageCount From Book_System');
+    Qry.OpenOrExecute;
+    
+    if (Qry.Found)
+    {
+     PListView.clLoadProListViewDataFromDataset(Qry);
+    }
+    else
+    {
+      PListView.Clearlist;
+    }
+  except
+    ShowMessage('Exception Class: '+LastExceptionClassName+' Exception GetData Message: '+LastExceptionMessage);
+  }      
+ }
+
+
+ Void onItemClicked
+ {
+   ShowMessage(clGetStringAfter(PListView.clSelectedItemData(clCaption),': '));
+   BookIDEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clCaption),': ');
+   BookTitleEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText),': ');
+   AuthorEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText1),': ');
+   CategoryEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText2),': ');
+   StatusEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText3),': ');
+   PageCountEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText4),': ');
+ }
+ 
+ 
+
+  void SqLiteConnectionCreateTable;
+  var
+    TableCategoryStatistics: Boolean;
+    QCategoryStatistics, QCustomerAnalytics, QRegionalDistribution :TClSQLiteQuery;
+  {
+    try
+      Clomosy.DBSQLiteConnect(Clomosy.AppFilesPath + 'library.db8', '');
+
+      QCategoryStatistics = Clomosy.DBSQLiteQueryWith('SELECT name FROM sqlite_master WHERE type="table" AND name="CategoryStatistics";');
+      QCategoryStatistics.OpenOrExecute;
+
+      TableCategoryStatistics = not QCategoryStatistics.Eof;
+  
+      
+      if not (TableCategoryStatistics )
+      {
+        Clomosy.DBSQLiteQuery.Sql.Text = 'CREATE TABLE CategoryStatistics (
+                                          ID INTEGER PRIMARY KEY AUTOINCREMENT,
+                                          Categories TEXT NOT NULL,
+                                          ReadBook INTEGER NOT NULL
+                                          );';
+        Clomosy.DBSQLiteQuery.OpenOrExecute;
+    
+        
+        ShowMessage('Table successfully added to the database!');
+        
+      }
+      
+
+    except
+     ShowMessage('Exception Class: '+LastExceptionClassName+' Exception Message: '+LastExceptionMessage);
+    }
+  }
+  
+void AddDataToChart;
+Var
+  QryCategoryStatistics: TClSQLiteQuery;
+{
+  try
+   QryCategoryStatistics = Clomosy.DBSQLiteQueryWith(
+  'SELECT LOWER(TRIM(Category)) AS Genre, ' +
+  'COUNT(*) AS TotalReadBooks, ' +
+  'CASE ' +
+    'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('dram') + ' THEN ' + QuotedStr('clPink') + ' ' +
+    'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('polisiye') + ' THEN ' + QuotedStr('clblue') + ' ' +
+    'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('romantik') + ' THEN ' + QuotedStr('clred') + ' ' +
+    'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('fantastik') + ' THEN ' + QuotedStr('clPurple') + ' ' +
+    'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('kişisel gelişim') + ' THEN ' + QuotedStr('clGreen') + ' ' + 
+     'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('roman') + ' THEN ' + QuotedStr('clYellow') + ' ' +
+     'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('korku') + ' THEN ' + QuotedStr('clPeru') + ' ' + 
+    'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('bilim kurgu') + ' THEN ' + QuotedStr('clYellowGreen') + ' ' + 
+    'WHEN LOWER(TRIM(Category)) = ' + QuotedStr('psikoloji') + ' THEN ' + QuotedStr('clOrange') + ' ' + 
+    'ELSE ' + QuotedStr('clGray') + ' ' +
+  'END AS color ' +
+  'FROM Book_System ' +
+  'GROUP BY LOWER(TRIM(Category));');
+
+    QryCategoryStatistics.OpenOrExecute;
+    
+      
+    
+    
+    
+    
+    if (QryCategoryStatistics.Found)
+    {
+     Chart1 = Form1.AddNewChart(clPageControl.PageContainers[0], 'Chart1', 'Clomosy Inc');
+      Chart1.Height = 250;
+      
+      Chart1.Margins.bottom=300;
+      Chart1.Width = 430 ;
+      Chart1.ChartType = clCSizedPie;
+     
+      Chart1.XAxisText = 'Genre';
+      Chart1.ChartItemText = 'Genre';
+      Chart1.ChartItemsValue = 'TotalReadBooks';
+      Chart1.ChartTitle = 'Number of Books Read per Genre';
+      Chart1.clLoadDataFromDataSet(QryCategoryStatistics);
+    }
+  except
+    ShowMessage('Exception class: ' + LastExceptionClassName + ' Exception Message: ' + LastExceptionMessage);
+  }
+}
+ void AddRatingColumnChart;
+var
+  QryRatingStatistics: TClSQLiteQuery;
+  ChartRating: TClChart;
+{
+  try
+   
+    
+   QryRatingStatistics = Clomosy.DBSQLiteQueryWith(
+  'SELECT ' +
+  '  R.Rating, ' +
+  '  IFNULL(B.BookCount, 0) AS BookCount, ' +
+  '  CASE ' +
+  '    WHEN R.Rating = 1 THEN ' + QuotedStr('clRed') + ' ' +
+  '    WHEN R.Rating = 2 THEN ' + QuotedStr('clOrange') + ' ' +
+  '    WHEN R.Rating = 3 THEN ' + QuotedStr('clYellow') + ' ' +
+  '    WHEN R.Rating = 4 THEN ' + QuotedStr('clBlue') + ' ' +
+  '    WHEN R.Rating = 5 THEN ' + QuotedStr('clGreen') + ' ' +
+  '    ELSE ' + QuotedStr('clGray') + ' ' +
+  '  END AS color, ' +
+  '  CAST(R.Rating AS TEXT) AS RatingText ' +
+  'FROM ' +
+  '  (SELECT 1 AS Rating UNION ALL ' +
+  '   SELECT 2 UNION ALL ' +
+  '   SELECT 3 UNION ALL ' +
+  '   SELECT 4 UNION ALL ' +
+  '   SELECT 5) AS R ' +
+  'LEFT JOIN ' +
+  '  (SELECT Rating, COUNT(*) AS BookCount FROM Book_System WHERE Rating BETWEEN 1 AND 5 GROUP BY Rating) AS B ' +
+  'ON R.Rating = B.Rating ' +
+  'ORDER BY R.Rating;'
+);
+    QryRatingStatistics.OpenOrExecute;
+    
+     
+    if (QryRatingStatistics.Found)
+    {
+      ChartRating = Form1.AddNewChart(clPageControl.PageContainers[0], 'ChartRating', 'RatingChart');
+      
+      ChartRating.Width = Form1.clWidth - 50;
+      ChartRating.Height = 250;
+      
+       ChartRating.Margins.top=250;
+      ChartRating.ChartType = clCBar
+      ChartRating.XAxisText = 'RatingText';
+      ChartRating.ChartItemText = 'RatingText';
+      ChartRating.ChartItemsValue = 'BookCount';
+      ChartRating.ChartTitle = 'Number of Books by Rating (1-5)';
+      
+      ChartRating.clLoadDataFromDataSet(QryRatingStatistics);
+    }
+  except
+    ShowMessage('Exception class: ' + LastExceptionClassName + ' Exception Message: ' + LastExceptionMessage);
+  }
+}
+  
+{
+  Form1 = TCLForm.Create(Self);
+  Form1.SetFormColor('#8338EC', '', clGNone);
+
+  arrPageName = TclArrayString.Create;
+  arrPageName = ['Book Static'];
+  clPageControl = Form1.AddNewPageControl(Form1,'clPageControl');
+  clPageControl.Align = alClient;
+  clPageControl.Pages[0].Text = arrPageName[0];
+  clPageControl.Tabsize.Mode = tsmFixedSizeAutoShrink;
+  clPageControl.Tabsize.Width =Form1.clWidth;
+  clPageControl.Tabsize.Height = 0;
+ 
+chartTitleLbl = Form1.AddNewProLabel(clPageControl.PageContainers[0], 'chartTitleLbl', 'Book Statistics');
+chartTitleLbl.Align = alTop;
+chartTitleLbl.Margins.Top = 40; 
+chartTitleLbl.Height = 25;
+chartTitleLbl.clProSettings.FontSize = 18;
+chartTitleLbl.clProSettings.TextSettings.Font.Style = [fsBold];
+chartTitleLbl.clProSettings.FontHorzAlign = palCenter;
+chartTitleLbl.SetclProSettings(chartTitleLbl.clProSettings);
+  
+  SqLiteConnectionCreateTable;
+  AddDataToChart;
+  AddRatingColumnChart;
+  Form1.Run;
+  
+}
+      

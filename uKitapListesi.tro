@@ -1,0 +1,240 @@
+Var
+Form1:TClForm;
+RightLyt : TclLayout;
+PListView : TClProListView;
+DPanl : TClProListViewDesignerPanel;
+DeleteBtn,UpdateBtn,AlterBtn : TClProButton;
+BookID,BookName,Author,Category,PageCount,Rating : TClProLabel;
+BookIDEdt,BookTitleEdt,AuthorEdt,CategoryEdt,StatusEdt,PageCountEdt : TclProEdit;
+testListview : TClProListView;
+aramaEdt : TClProSearchEdit;
+CategoryImg, AuthorImg, nameImg, CountImg:TClProImage;
+ratingComboBox:TCLComboBox;
+ratingStr:String;
+
+Void ClearEdtText
+{
+BookIDEdt.Text='';
+BookTitleEdt.Text='';
+AuthorEdt.Text='';
+CategoryEdt.Text='';
+PageCountEdt.Text='';
+ratingComboBox.ItemIndex=-1;
+}
+
+void GetData;
+var
+Qry : TClSQLiteQuery;
+{
+
+try
+Qry = Clomosy.DBSQLiteQueryWith('Select ''BookID: ''||BookID as BookID,''''||BookName as BookName,''''||Author as Author, ''  ''||Category as Category,''Page Count: ''||PageCount as PageCount ,'' Rating : '' || Rating as Rating From Book_System');
+Qry.OpenOrExecute;
+
+if (Qry.Found)
+{
+PListView.clLoadProListViewDataFromDataset(Qry);
+}
+else
+{
+PListView.Clearlist;
+}
+
+except
+ShowMessage('Exception Class: '+LastExceptionClassName+' Exception GetData Message: '+LastExceptionMessage);
+}
+}
+
+Void onItemClicked;
+{
+ShowMessage(clGetStringAfter(PListView.clSelectedItemData(clCaption),': '));
+BookIDEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clCaption),': ');
+BookTitleEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText),': ');
+AuthorEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText1),': ');
+CategoryEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText2),': ');
+
+PageCountEdt.Text=clGetStringAfter(PListView.clSelectedItemData(clText4),': ');
+ratingStr=clGetStringAfter(PListView.clSelectedItemData(clText5),': ');
+ratingComboBox.ItemIndex= ratingComboBox.Items.IndexOf(ratingStr);
+}
+
+void SqLiteConnectionCreateTable;
+var
+TableExists: Boolean;
+{
+try
+Clomosy.DBSQLiteConnect(Clomosy.AppFilesPath + 'library.db8', '');
+
+
+Clomosy.DBSQLiteQuery.Sql.Text = 'SELECT name FROM sqlite_master WHERE type="table" AND name="Book_System";';
+Clomosy.DBSQLiteQuery.OpenOrExecute;
+
+
+TableExists = not Clomosy.DBSQLiteQuery.Eof;
+
+
+if not (TableExists)
+{
+Clomosy.DBSQLiteQuery.Sql.Text = 'CREATE TABLE Book_System(BookID TEXT NOT NULL,
+BookName TEXT NOT NULL,
+Author TEXT NOT NULL,
+Category TEXT NOT NULL,
+PageCount TEXT NOT NULL,
+Rating TEXT NOT NULL )';
+Clomosy.DBSQLiteQuery.OpenOrExecute;
+
+ShowMessage('Table successfully added to the database!');
+
+}
+
+except
+ShowMessage('Exception Class: '+LastExceptionClassName+' Exception SqLiteConnectionCreateTable Message: '+LastExceptionMessage);
+}
+
+}
+
+void mainScreen;
+{
+Form1 =TClForm.Create(Self);
+Form1.SetFormColor('#F0F9F4','',clGNone);
+
+PListView = Form1.AddNewProListView(Form1,'PListView');
+
+PListView.Align = alLeft;
+PListView.Width = Form1.clWidth/(0.7);
+PListView.Margins.Right = 10;
+PListView.Margins.Bottom = 10;
+PListView.Margins.Top= 20;
+PListView.Margins.Left = 10;
+PListView.clProSettings.ViewType = lvWaterFall;
+PListView.clProSettings.IsRound = True;
+PListView.clProSettings.IsFill = True;
+PListView.clProSettings.ColCount = 1;
+PListView.clProSettings.ItemHeight = 150;
+PListView.clProSettings.ItemSpace = 5;
+PListView.clProSettings.BorderColor = clAlphaColor.clHexToColor('#eddac0');
+PListView.clProSettings.BorderWidth = 1;
+PListView.clProSettings.RoundWidth = 3;
+PListView.clProSettings.RoundHeight = 3;
+PListView.SetclProSettings(PListView.clProSettings);
+
+aramaEdt = Form1.AddNewProSearchEdit(Form1,'aramaEdt','Search...');
+aramaEdt.Align = alTop;
+aramaEdt.Margins.Top = 10;
+aramaEdt.Margins.Left = 10;
+aramaEdt.Margins.Right = 10;
+aramaEdt.height=40;
+aramaEdt.Width=Form1.clWidth;
+aramaEdt.clProSettings.BorderColor = clAlphaColor.clHexToColor('#4d996a');
+aramaEdt.clProSettings.BorderWidth = 2;
+aramaEdt.clProSettings.RoundWidth = 10;
+aramaEdt.clProSettings.RoundHeight = 10;
+aramaEdt.clProSettings.FontSize = 15;
+aramaEdt.clProSettings.IsRound = True;
+aramaEdt.SetclProSettings(aramaEdt.clProSettings);
+aramaEdt.TargetListView = PListView;
+
+DPanl = Form1.AddNewProListViewDesignerPanel(PListView,'DPanl');
+DPanl.Align = alTop;
+DPanl.Margins.Top = 20;
+DPanl.Height = 80;
+
+DPanl.clProSettings.IsFill = true;
+DPanl.clProSettings.ItemHeight = 150;
+DPanl.clProSettings.BackgroundColor = clAlphaColor.clHexToColor('#E1F5E1');
+DPanl.clProSettings.BorderColor = clAlphaColor.clHexToColor('#4d996a');
+DPanl.clProSettings.IsRound = True;
+DPanl.clProSettings.BorderWidth = 2;
+DPanl.clProSettings.RoundWidth = 10;
+DPanl.clProSettings.RoundHeight = 10;
+DPanl.SetclProSettings(DPanl.clProSettings);
+PListView.SetDesignerPanel(DPanl);
+Form1.AddNewEvent(PListView,tbeOnItemClick,'onItemClicked');
+
+nameImg= Form1.AddNewProImage(DPanl,'nameImg');
+nameImg.Height =25;
+nameImg.Width = 25;
+nameImg.Margins.Right=500;
+nameImg.Margins.bottom=43;
+Form1.setImage(nameImg,' https://cdn-icons-png.flaticon.com/512/578/578666.png');
+
+AuthorImg= Form1.AddNewProImage(DPanl,'AuthorImg');
+AuthorImg.Height =25;
+AuthorImg.Width = 25;
+AuthorImg.Margins.Right=500;
+AuthorImg.Margins.top=20;
+Form1.setImage(AuthorImg,'https://cdn-icons-png.flaticon.com/512/3252/3252812.png');
+
+
+
+CountImg= Form1.AddNewProImage(DPanl,'CountImg');
+CountImg.Height =25;
+CountImg.Width = 25;
+CountImg.Margins.Right=500;
+CountImg.Margins.top=80;
+Form1.setImage(CountImg,'https://cdn-icons-png.flaticon.com/512/11092/11092456.png');
+
+BookID = Form1.AddNewProLabel(DPanl,'BookID','-');
+BookID.Margins.bottom=100;
+BookID.Margins.right = 320;
+BookID.Height = DPanl.Height/5;
+BookID.clProSettings.FontColor = clAlphaColor.clHexToColor('#0c0d0d');
+BookID.clProSettings.FontSize = 15;
+BookID.clProSettings.TextSettings.Font.Style = [fsBold];
+BookID.clProSettings.RoundWidth = 10;
+BookID.clProSettings.RoundHeight = 10;
+BookID.SetclProSettings(BookID.clProSettings);
+DPanl.AddPanelObject(BookID,clCaption);
+
+BookName = Form1.AddNewProLabel(DPanl,'BookName','-');
+BookName.Margins.bottom = 40;
+BookName.Margins.right = 320;
+BookName.Height = DPanl.Height/4;
+BookName.SetclProSettings(BookID.clProSettings);
+DPanl.AddPanelObject(BookName,clText);
+
+Author = Form1.AddNewProLabel(DPanl,'Author','-');
+Author.Margins.top = 20;
+Author.Margins.right = 320;
+Author.Height = DPanl.Height/4;
+Author.SetclProSettings(BookID.clProSettings);
+DPanl.AddPanelObject(Author,clText1);
+
+Category = Form1.AddNewProLabel(DPanl,'Category','-');
+Category.Margins.bottom = 40;
+Category.Margins.left = 40;
+Category.Height = DPanl.Height/4;
+Category.clProSettings.BackgroundColor = clAlphaColor.clHexToColor('#4d996a');
+Category.clProSettings.FontColor=clAlphaColor.clHexToColor('#000000');
+Category.clProSettings.RoundWidth = 7;
+Category.clProSettings.RoundHeight = 7;
+Category.SetclProSettings(Category.clProSettings);
+DPanl.AddPanelObject(Category,clText2);
+
+
+Rating= Form1.AddNewProLabel(DPanl,'Rating','-');
+Rating.Margins.Top = 80;
+Rating.Margins.left = 40;
+Rating.clProSettings.FontHorzAlign = palTrailing;
+Rating.clProSettings.FontVertAlign = palCenter;
+Rating.Height = DPanl.Height/4;
+Rating.SetclProSettings(BookID.clProSettings);
+DPanl.AddPanelObject(Rating,clText5)
+
+PageCount = Form1.AddNewProLabel(DPanl,'PageCount','-');
+PageCount.Margins.Top = 80;
+PageCount.Margins.Right = 320;
+PageCount.Height = DPanl.Height/4;
+PageCount.SetclProSettings(BookID.clProSettings);
+DPanl.AddPanelObject(PageCount,clText4);
+
+
+Form1.Run;
+}
+{
+mainScreen;
+
+SqLiteConnectionCreateTable;
+GetData;
+
+}

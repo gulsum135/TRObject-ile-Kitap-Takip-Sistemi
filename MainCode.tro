@@ -1,0 +1,251 @@
+var
+  Form1 :TclForm;
+  AnaPanel, GirisPaneli : TclProPanel;
+  BtnGiris,BtnTikla, BtnKayitOl,BtnSifreSimgesi :TCLProButton;
+  EdtKullaniciAdi, EdtKullaniciSifre : TclProEdit;
+  label1,label2: TClProLabel;
+testImg,kullaniciImg, logoImg:TCLProImage;
+G_KullaniciAdi:String;
+void KullaniciGirisiYap(AKullaniciAdi, AKullaniciSifre);
+{
+  try
+    Clomosy.DBSQLiteQuery.Sql.Text = '
+      SELECT * from Kullanicilar where kullaniciAdi= '+ QuotedStr(AKullaniciAdi) + 'and kullaniciSifre=' + QuotedStr(AKullaniciSifre);
+      Clomosy.DBSQLiteQuery.OpenOrExecute;
+    
+    if (not Clomosy.DBSQLiteQuery.Eof)
+        {
+         G_KullaniciAdi=EdtKullaniciAdi.Text;
+        Clomosy.RunUnit('uIslemler');
+        ShowMessage(' Login successful.');
+        
+        }
+        else
+          ShowMessage(' Login failed.');
+  except
+    ShowMessage('004: Hata Sınıfı: '+LastExceptionClassName+' Hata Mesajı: '+LastExceptionMessage);
+  }
+}
+
+void KullaniciKaydiYap(AKullaniciAdi, AKullaniciSifre);
+{
+  try
+    Clomosy.DBSQLiteQuery.Sql.Text = '
+    INSERT INTO Kullanicilar (kullaniciAdi, kullaniciSifre) VALUES ('+QuotedStr(AKullaniciAdi)+', '+QuotedStr(AKullaniciSifre)+');';
+    Clomosy.DBSQLiteQuery.OpenOrExecute;
+    ShowMessage('User registered.');
+  
+  except
+    ShowMessage('003: Hata Sınıfı: '+LastExceptionClassName+' Hata Mesajı: '+LastExceptionMessage);
+  }
+}
+
+void KullaniciKontrol;
+ var
+   TiklananButon:TClProButton;
+{
+  TiklananButon = TClProButton(Form1.Clsender); 
+
+  if((EdtKullaniciAdi.Text <>'' ) && (EdtKullaniciSifre.Text <>'' ))
+  {
+    if(TiklananButon.clTagStr == 'KayitOl')
+      KullaniciKaydiYap(EdtKullaniciAdi.Text,EdtKullaniciSifre.Text);
+    else if (TiklananButon.clTagStr == 'Giris')
+      KullaniciGirisiYap(EdtKullaniciAdi.Text,EdtKullaniciSifre.Text);
+  
+  EdtKullaniciAdi.Text = '';
+  EdtKullaniciSifre.Text = '';
+    
+  }
+  else ShowMessage('Username and password should not be left blank.');
+}
+  
+  void SQLiteBaglantiTablosuOlustur;
+  var
+    TabloVarMi: Boolean;
+  {
+    try
+      Clomosy.DBSQLiteConnect(Clomosy.AppFilesPath + 'KullanicilarDB.db3', '' );
+ 
+ 
+      Clomosy.DBSQLiteQuery.Sql.Text = 'SELECT name FROM sqlite_master WHERE type="table" AND name="Kullanicilar";';
+      Clomosy.DBSQLiteQuery.OpenOrExecute;
+      
+    
+      TabloVarMi = not Clomosy.DBSQLiteQuery.Eof;
+      
+      if not (TabloVarMi)
+      {
+        Clomosy.DBSQLiteQuery.Sql.Text = 'CREATE TABLE Kullanicilar(
+        kullaniciID INTEGER PRIMARY KEY AUTOINCREMENT,
+        kullaniciAdi TEXT ,
+        kullaniciSifre TEXT )';
+        Clomosy.DBSQLiteQuery.OpenOrExecute;
+        
+        ShowMessage('Table successfully added to database!');
+        
+        try
+          Clomosy.DBSQLiteQuery.Sql.Text = '
+          INSERT INTO Kullanicilar (kullaniciAdi, kullaniciSifre) VALUES (''gulsum'', ''123'');
+          INSERT INTO Kullanicilar (kullaniciAdi, kullaniciSifre) VALUES (''Glsm'', ''1234'');';
+          Clomosy.DBSQLiteQuery.OpenOrExecute;
+          ShowMessage('Data insertion successful!');
+        
+        except
+          ShowMessage('001: Hata Sınıfı: '+LastExceptionClassName+' Hata Mesajı: '+LastExceptionMessage);
+        }
+        ShowMessage('Data is added to the existing Users table.');
+      }
+
+    except
+     ShowMessage('002: Hata Sınıfı: '+LastExceptionClassName+' Hata Mesajı: '+LastExceptionMessage);
+    }
+  }
+  
+  
+   
+ void Tiklandigindasifrebutonudegisme;
+{
+ BtnTikla = TclProButton(Form1.ClSender);
+
+  if (EdtKullaniciSifre.Password == True)
+  {
+    Form1.SetImage(BtnTikla, 'https://r.resimlink.com/_twLODGPxgXC.png'); 
+    EdtKullaniciSifre.Password = False; 
+  }
+  else
+  {
+    Form1.SetImage(BtnTikla, 'https://r.resimlink.com/HY-oB0.png'); 
+    EdtKullaniciSifre.Password = True; 
+  }
+}
+
+
+
+{
+  Form1 = TclForm.Create(Self);
+  Form1.SetFormColor('f0f9ff','',clGNone);
+  
+  Form1.clsetCaption('Giriş Sayfası');
+  SQLiteBaglantiTablosuOlustur;
+  
+  AnaPanel = Form1.AddNewProPanel(Form1,'AnaPanel');
+  AnaPanel.ALign = AlCenter;
+  AnaPanel.Height = Form1.clHeight / 3;
+  AnaPanel.Width = Form1.clWidth - 20;
+  AnaPanel.clProSettings.BackgroundColor = nil;
+  AnaPanel.SetclProSettings(AnaPanel.clProSettings);
+  
+  
+  logoImg= Form1.AddNewProImage(Form1,'logoImg');
+  logoImg.Height =60; 
+  logoImg.Align=AlCenter;
+  logoImg.Width = 60;
+  
+  logoImg.Margins.bottom=580;
+  Form1.setImage(logoImg,'https://i.pinimg.com/564x/cf/b1/f0/cfb1f0d10fb06f1199e63c971b759e0b.jpg');
+   
+  
+  EdtKullaniciAdi = Form1.AddNewProEdit(AnaPanel,'EdtKullaniciAdi', 'User Name');
+  EdtKullaniciAdi.Align=alMostTop;
+  EdtKullaniciAdi.Height = AnaPanel.Height / 4; 
+  EdtKullaniciAdi.Margins.Top= 5;
+  EdtKullaniciAdi.Margins.Left= 10;
+  EdtKullaniciAdi.Margins.Left= 10;
+  EdtKullaniciAdi.clProSettings.BorderColor = clAlphaColor.clHexToColor('#030303');
+  EdtKullaniciAdi.clProSettings.BorderWidth = 1;
+  EdtKullaniciAdi.clProSettings.RoundHeight = 20;
+  EdtKullaniciAdi.clProSettings.RoundWidth = 20;
+  EdtKullaniciAdi.clProSettings.IsRound = True;
+  EdtKullaniciAdi.SetclProSettings(EdtKullaniciAdi.clProSettings);
+  
+    
+  kullaniciImg= Form1.AddNewProImage(Form1,'kullaniciImg');
+  kullaniciImg.Height = AnaPanel.Height / 4; 
+  
+ 
+  kullaniciImg.Height =25;
+  kullaniciImg.Width = 25;
+  kullaniciImg.Margins.left=280;
+  kullaniciImg.Margins.bottom=170;
+ Form1.setImage(kullaniciImg,'https://cdn-icons-png.flaticon.com/512/709/709699.png');
+   
+   
+  
+  
+  EdtKullaniciSifre = Form1.AddNewProEdit(AnaPanel,'EdtKullaniciSifre', 'Password');
+  EdtKullaniciSifre.Align=alMostTop;
+  EdtKullaniciSifre.Height = AnaPanel.Height / 4;
+  EdtKullaniciSifre.Margins.Top= 5;
+  EdtKullaniciSifre.Margins.Left= 10;
+  EdtKullaniciSifre.SetclProSettings(EdtKullaniciAdi.clProSettings);
+  
+label1 = Form1.AddNewProLabel(Form1, 'label1', 'WELCOME TO');
+clComponent.SetupComponent(label1, '{"Align":"Center",
+"MarginBottom":470, 
+"Width":200, 
+"Height":30, 
+"TextColor":"#333333",
+"TextSize":30,
+"TextVerticalAlign":"center", 
+"TextHorizontalAlign":"left",
+"Textbold":"yes"}');
+
+label2 = Form1.AddNewProLabel(Form1, 'label2', 'KitApp');
+clComponent.SetupComponent(label2, '{"Align":"Center", 
+"MarginBottom":390,
+"MarginLeft": 65,
+"Width":170,
+"Height":32,
+"TextColor":"#333333", 
+"TextSize":30, 
+"TextVerticalAlign":"center", 
+"TextHorizontalAlign":"left", 
+"Textbold":"yes"}');
+
+
+  BtnSifreSimgesi=Form1.AddNewProButton(Form1,'BtnSifreSimgesi','');
+  BtnSifreSimgesi.Margins.Left= 280;
+  BtnSifreSimgesi.Height=30;
+  BtnSifreSimgesi.Width=35;
+  BtnSifreSimgesi.Margins.bottom=30;
+  BtnSifreSimgesi.clProSettings.BorderColor=clAlphaColor.clHexToColor('#f81c0d');
+  BtnSifreSimgesi.clProSettings.BackGroundColor=clAlphaColor.clHexToColor('#ffffff');
+  BtnSifreSimgesi.clProSettings.FontSize=20;
+  BtnSifreSimgesi.clProSettings.RoundWidth=10;
+  BtnSifreSimgesi.clProSettings.Roundheight=10;
+  BtnSifreSimgesi.SetclProSettings(BtnSifreSimgesi.clProSettings);
+  Form1.SetImage(BtnSifreSimgesi,'https://r.resimlink.com/HY-oB0.png');
+  Form1.AddNewEvent(BtnSifreSimgesi,tbeOnClick,'Tiklandigindasifrebutonudegisme');
+
+  
+  GirisPaneli = Form1.AddNewProPanel(AnaPanel,'GirisPaneli');
+  GirisPaneli.ALign = AlBottom;
+  GirisPaneli.Height = AnaPanel.Height / 4;
+  GirisPaneli.Margins.Top= 5;
+  GirisPaneli.Margins.Left= 10;
+  GirisPaneli.Margins.Left= 10;
+  GirisPaneli.SetclProSettings(AnaPanel.clProSettings);
+  
+  BtnGiris = Form1.AddNewProButton(GirisPaneli,'BtnGiris','Log In'); 
+  BtnGiris.Align=alLeft;
+  BtnGiris.Width = GirisPaneli.Width / 2;
+  BtnGiris.clTagStr = 'Giris';
+  BtnGiris.clProSettings.TextSettings.Font.Style = [fsBold];
+  BtnGiris.clProSettings.BorderColor = clAlphaColor.clHexToColor('#030303');
+  BtnGiris.clProSettings.BorderWidth = 2;
+  BtnGiris.clProSettings.RoundHeight = 20;
+  BtnGiris.clProSettings.RoundWidth = 20;
+  BtnGiris.clProSettings.IsRound = True;
+  BtnGiris.SetclProSettings(BtnGiris.clProSettings);
+  Form1.AddNewEvent(BtnGiris,tbeOnClick,'KullaniciKontrol');
+  
+  BtnKayitOl = Form1.AddNewProButton(GirisPaneli,'BtnKayitOl','Sign Up'); 
+  BtnKayitOl.Align=alRight;
+  BtnKayitOl.Width = GirisPaneli.Width / 2;
+  BtnKayitOl.clTagStr = 'KayitOl';
+  BtnKayitOl.SetclProSettings(BtnGiris.clProSettings);
+  Form1.AddNewEvent(BtnKayitOl,tbeOnClick,'KullaniciKontrol');
+  
+  Form1.Run;
+}
